@@ -37,11 +37,12 @@ sub import {
         &$import;
         for my $constant (@names) {
             no strict 'refs';
-            my $const_sub = \&{"${caller}::$constant"};
+            my $full_name = $constant =~ /::/ ? $constant : $caller.'::'.$constant;
+            my $const_sub = \&$full_name;
             # lie about package because some things check sub names
             package #hide
                 constant;
-            *{"${caller}::$constant"} = sub () { &$const_sub };
+            *$full_name = sub () { &$const_sub };
         }
     };
     $installed = 1;
